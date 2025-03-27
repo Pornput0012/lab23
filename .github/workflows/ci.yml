@@ -1,0 +1,26 @@
+name: CI Test Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-test-backend_db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: set up docker compose 
+        run: apt-update && apt-get install docker-compose
+
+      - name: run docker compose 
+        run: docker compose up -d
+
+      - name: test_database
+        run: docker compose exec -it db mysqladmin ping -h localhost
+
+      - name: test_backend 
+        run: docker compose exec -it backend curl -f http://localhost:5000/health 
