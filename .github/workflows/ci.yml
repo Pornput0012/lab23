@@ -14,13 +14,16 @@ jobs:
         uses: actions/checkout@v3
 
       - name: set up docker compose 
-        run: apt-get update && apt-get install docker-compose
+        run:  docker/setup-buildx-action@v2
 
       - name: run docker compose 
-        run: docker compose up -d
+        run:  docker-compose -f docker-compose.yml up -d
 
       - name: test_database
-        run: docker compose exec -it db mysqladmin ping -h localhost
+        run: docker exec db_server mysqladmin ping -h localhost
 
       - name: test_backend 
-        run: docker compose exec -it backend curl -f http://localhost:5000/health 
+        run: docker exec web curl  -f localhost:5000/health
+      
+      - name: Shut down containers
+        run: docker-compose down
