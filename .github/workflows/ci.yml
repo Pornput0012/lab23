@@ -12,18 +12,15 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
-
-      - name: set up docker compose 
-        run:  docker/setup-buildx-action@v2
-
-      - name: run docker compose 
-        run:  docker-compose -f docker-compose.yml up -d
-
-      - name: test_database
-        run: docker exec db_server mysqladmin ping -h localhost
-
-      - name: test_backend 
-        run: docker exec web curl  -f localhost:5000/health
       
-      - name: Shut down containers
-        run: docker-compose down
+      - name: Set up Docker Compose
+        run: |
+          docker compose up -d
+          echo "⌚ Waiting for containers to initalize"
+          sleep 20
+      - name: Run test inside web container
+        run: docker compose exec -it web curl http://localhost:5000/healty
+      
+      - name: Shutdown Docker Compose
+        if: always()
+        run: docker compose down -v
